@@ -122,10 +122,13 @@
       fetch('https://script.google.com/macros/s/AKfycbyoV-7hJPPFQ1zvQ1Ydv6BjJWQ8OLrcxmYq7xKLRTRuNX2hDVWXJVP28zL_2sdv4cu5hg/exec', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   },
   body: JSON.stringify(payload)
-});
+})
+.then(response => response.text())
+.then(result => console.log('Success:', result))
+.catch(error => console.error('Error:', error));
 
       document.getElementById('page2').classList.add('hidden');
       document.getElementById('page3').classList.remove('hidden');
