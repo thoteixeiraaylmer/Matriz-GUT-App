@@ -1,155 +1,122 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Matriz GUT - Mini App</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f8f9fa;
-    }
-    h2 {
-      text-align: center;
-    }
-    form {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 800px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    input, select, button {
-      margin: 8px 0;
-      padding: 8px;
-      width: 100%;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .problema {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f1f1f1;
-      border-radius: 6px;
-    }
-    .linha {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .linha > div {
-      flex: 1;
-    }
-    .resultado {
-      font-weight: bold;
-      color: #2d6a4f;
-    }
-    .botoes {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-    }
-  </style>
+  <title>Matriz GUT - Aylmer Desenvolvimento Humano</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
-<body>
-  <h2>Matriz GUT</h2>
-  <form id="gutForm">
-    <input type="text" name="nome" placeholder="Seu nome" required>
-    <input type="email" name="email" placeholder="Seu e-mail" required>
+<body class="bg-gray-100 min-h-screen flex flex-col">
 
-    <div id="problemas"></div>
+  <header class="bg-white shadow p-4 flex items-center justify-center">
+    <img src="logo.png" alt="Logo Aylmer" class="h-16">
+  </header>
 
-    <div class="botoes">
-      <button type="button" onclick="adicionarProblema()">Adicionar Problema</button>
-      <button type="submit">Enviar</button>
+  <main class="flex-grow p-4 flex flex-col items-center justify-center">
+    <div id="page1" class="w-full max-w-md bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4 text-center text-blue-900">Identificação</h2>
+      <input type="text" id="nome" placeholder="Seu nome" class="border p-2 mb-4 w-full rounded" required>
+      <input type="email" id="email" placeholder="Seu e-mail" class="border p-2 mb-4 w-full rounded" required>
+      <button onclick="irParaProblemas()" class="bg-blue-600 text-white p-2 rounded w-full">Próximo</button>
     </div>
-  </form>
+
+    <div id="page2" class="hidden w-full max-w-3xl bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4 text-center text-blue-900">Descreva seus Problemas</h2>
+      <form id="problemasForm" class="flex flex-col gap-4"></form>
+      <div class="flex justify-between mt-6">
+        <button type="button" onclick="adicionarProblema()" class="bg-gray-500 text-white p-2 rounded">Adicionar Problema</button>
+        <button type="button" onclick="enviarFormulario()" class="bg-blue-600 text-white p-2 rounded">Enviar</button>
+      </div>
+    </div>
+
+    <div id="page3" class="hidden w-full max-w-3xl bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4 text-center text-green-700">Relatório</h2>
+      <div id="relatorio" class="overflow-x-auto"></div>
+      <div class="flex justify-center mt-6 gap-4">
+        <button onclick="baixarPDF()" class="bg-green-600 text-white p-2 rounded">Baixar Relatório em PDF</button>
+      </div>
+      <p class="text-center mt-4 text-blue-700 font-medium">Obrigado por preencher! Um e-mail foi enviado para você.</p>
+    </div>
+  </main>
 
   <script>
+    let problemasContador = 0;
+    let nomeGlobal = "";
+    let emailGlobal = "";
+    let problemasGlobal = [];
+
+    function irParaProblemas() {
+      nomeGlobal = document.getElementById('nome').value.trim();
+      emailGlobal = document.getElementById('email').value.trim();
+      if (!nomeGlobal || !emailGlobal) {
+        alert('Preencha nome e e-mail!');
+        return;
+      }
+      document.getElementById('page1').classList.add('hidden');
+      document.getElementById('page2').classList.remove('hidden');
+      for (let i = 0; i < 3; i++) adicionarProblema();
+    }
+
     function adicionarProblema() {
-      const problemasDiv = document.getElementById('problemas');
-
-      const problemaHTML = document.createElement('div');
-      problemaHTML.classList.add('problema');
-
-      const template = `
-        <input type="text" name="problema" placeholder="Descreva o problema" required>
-        <div class="linha">
-          <div>
-            Gravidade:
-            <select name="gravidade">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-          </div>
-          <div>
-            Urgência:
-            <select name="urgencia">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-          </div>
-          <div>
-            Tendência:
-            <select name="tendencia">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-          </div>
-          <div>
-            Resultado:
-            <span class="resultado">0</span>
-          </div>
+      const form = document.getElementById('problemasForm');
+      const div = document.createElement('div');
+      div.classList.add('border', 'p-4', 'rounded', 'bg-gray-50');
+      div.innerHTML = `
+        <input type="text" placeholder="Descreva o problema" class="border p-2 mb-2 w-full rounded" required>
+        <div class="flex gap-2">
+          <select class="border p-2 rounded flex-1" required>
+            <option value="">Gravidade</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          </select>
+          <select class="border p-2 rounded flex-1" required>
+            <option value="">Urgência</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          </select>
+          <select class="border p-2 rounded flex-1" required>
+            <option value="">Tendência</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          </select>
         </div>
       `;
-
-      problemaHTML.innerHTML = template;
-      problemasDiv.appendChild(problemaHTML);
-
-      problemaHTML.querySelectorAll('select').forEach(select => {
-        select.addEventListener('change', () => calcularResultado(problemaHTML));
-      });
+      form.appendChild(div);
+      problemasContador++;
     }
 
-    function calcularResultado(divProblema) {
-      const g = parseInt(divProblema.querySelector('select[name="gravidade"]').value);
-      const u = parseInt(divProblema.querySelector('select[name="urgencia"]').value);
-      const t = parseInt(divProblema.querySelector('select[name="tendencia"]').value);
-      const resultado = g * u * t;
-      divProblema.querySelector('.resultado').innerText = resultado;
-    }
-
-    document.getElementById('gutForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      
-      const formData = new FormData(this);
+    function enviarFormulario() {
       const problemas = [];
-      document.querySelectorAll('.problema').forEach(div => {
+      document.querySelectorAll('#problemasForm > div').forEach(div => {
+        const inputs = div.querySelectorAll('input, select');
+        const problema = inputs[0].value.trim();
+        const gravidade = inputs[1].value;
+        const urgencia = inputs[2].value;
+        const tendencia = inputs[3].value;
+        if (!problema || !gravidade || !urgencia || !tendencia) {
+          alert('Preencha todos os campos!');
+          return;
+        }
         problemas.push({
-          problema: div.querySelector('input[name="problema"]').value,
-          gravidade: div.querySelector('select[name="gravidade"]').value,
-          urgencia: div.querySelector('select[name="urgencia"]').value,
-          tendencia: div.querySelector('select[name="tendencia"]').value,
-          resultado: div.querySelector('.resultado').innerText
+          problema,
+          gravidade: Number(gravidade),
+          urgencia: Number(urgencia),
+          tendencia: Number(tendencia),
+          resultado: Number(gravidade) * Number(urgencia) * Number(tendencia)
         });
       });
 
-      const dados = {
-        nome: formData.get('nome'),
-        email: formData.get('email'),
-        problemas: problemas
+      if (problemas.length < 3) {
+        alert('Preencha pelo menos 3 problemas.');
+        return;
+      }
+
+      problemasGlobal = problemas;
+
+      mostrarRelatorio(problemas);
+
+      const payload = {
+        nome: nomeGlobal,
+        email: emailGlobal,
+        problemas: problemasGlobal
       };
 
       fetch('https://script.google.com/macros/s/AKfycbyoV-7hJPPFQ1zvQ1Ydv6BjJWQ8OLrcxmYq7xKLRTRuNX2hDVWXJVP28zL_2sdv4cu5hg/exec', {
@@ -158,16 +125,49 @@
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(dados)
-      }).then(() => {
-        alert('Formulário enviado com sucesso!');
-        document.getElementById('gutForm').reset();
-        document.getElementById('problemas').innerHTML = '';
-      }).catch(error => {
-        console.error('Erro ao enviar:', error);
-        alert('Erro no envio, tente novamente.');
+        body: JSON.stringify(payload)
       });
-    });
+
+      document.getElementById('page2').classList.add('hidden');
+      document.getElementById('page3').classList.remove('hidden');
+    }
+
+    function mostrarRelatorio(problemas) {
+      let html = `
+      <div id="pdf-content" class="p-4">
+      <h2 class="text-center text-lg font-bold mb-4 text-blue-900">Relatório - Matriz GUT</h2>
+      <table class="min-w-full border-collapse border border-gray-300 text-sm">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="border p-2">Problema</th>
+            <th class="border p-2">Gravidade</th>
+            <th class="border p-2">Urgência</th>
+            <th class="border p-2">Tendência</th>
+            <th class="border p-2">Resultado</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      problemas.forEach(p => {
+        html += `
+          <tr class="text-center">
+            <td class="border p-2">${p.problema}</td>
+            <td class="border p-2">${p.gravidade}</td>
+            <td class="border p-2">${p.urgencia}</td>
+            <td class="border p-2">${p.tendencia}</td>
+            <td class="border p-2 font-semibold">${p.resultado}</td>
+          </tr>`;
+      });
+
+      html += `</tbody></table></div>`;
+      document.getElementById('relatorio').innerHTML = html;
+    }
+
+    function baixarPDF() {
+      const element = document.getElementById('pdf-content');
+      html2pdf().from(element).save('Relatorio_MatrizGUT.pdf');
+    }
   </script>
+
 </body>
 </html>
