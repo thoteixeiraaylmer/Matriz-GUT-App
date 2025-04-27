@@ -121,9 +121,10 @@
 
       fetch('https://script.google.com/macros/s/AKfycbyoV-7hJPPFQ1zvQ1Ydv6BjJWQ8OLrcxmYq7xKLRTRuNX2hDVWXJVP28zL_2sdv4cu5hg/exec', {
   method: 'POST',
-  body: new URLSearchParams({
-    'data': JSON.stringify(payload)
-  })
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(payload)
 });
 
       document.getElementById('page2').classList.add('hidden');
