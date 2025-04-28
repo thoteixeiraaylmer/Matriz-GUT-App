@@ -84,53 +84,60 @@
     }
 
     function enviarFormulario() {
-      const problemas = [];
-      document.querySelectorAll('#problemasForm > div').forEach(div => {
-        const inputs = div.querySelectorAll('input, select');
-        const problema = inputs[0].value.trim();
-        const gravidade = inputs[1].value;
-        const urgencia = inputs[2].value;
-        const tendencia = inputs[3].value;
-        if (!problema || !gravidade || !urgencia || !tendencia) {
-          alert('Preencha todos os campos!');
-          return;
-        }
-        problemas.push({
-          problema,
-          gravidade: Number(gravidade),
-          urgencia: Number(urgencia),
-          tendencia: Number(tendencia),
-          resultado: Number(gravidade) * Number(urgencia) * Number(tendencia)
-        });
+  const problemas = [];
+  let camposValidos = true;
+
+  document.querySelectorAll('#problemasForm > div').forEach(div => {
+    const problemaInput = div.querySelector('input[type="text"]');
+    const gravidadeSelect = div.querySelector('select:nth-of-type(1)');
+    const urgenciaSelect = div.querySelector('select:nth-of-type(2)');
+    const tendenciaSelect = div.querySelector('select:nth-of-type(3)');
+
+    if (!problemaInput.value.trim() || !gravidadeSelect.value || !urgenciaSelect.value || !tendenciaSelect.value) {
+      camposValidos = false;
+    } else {
+      problemas.push({
+        problema: problemaInput.value.trim(),
+        gravidade: Number(gravidadeSelect.value),
+        urgencia: Number(urgenciaSelect.value),
+        tendencia: Number(tendenciaSelect.value),
+        resultado: Number(gravidadeSelect.value) * Number(urgenciaSelect.value) * Number(tendenciaSelect.value)
       });
-
-      if (problemas.length < 3) {
-        alert('Preencha pelo menos 3 problemas.');
-        return;
-      }
-
-      problemasGlobal = problemas;
-
-      mostrarRelatorio(problemas);
-
-      const payload = {
-        nome: nomeGlobal,
-        email: emailGlobal,
-        problemas: problemasGlobal
-      };
-
-      fetch('https://script.google.com/macros/s/AKfycbyoV-7hJPPFQ1zvQ1Ydv6BjJWQ8OLrcxmYq7xKLRTRuNX2hDVWXJVP28zL_2sdv4cu5hg/exec', {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      document.getElementById('page2').classList.add('hidden');
-      document.getElementById('page3').classList.remove('hidden');
     }
+  });
+
+  if (!camposValidos) {
+    alert('Preencha todos os campos!');
+    return;
+  }
+
+  if (problemas.length < 3) {
+    alert('Preencha pelo menos 3 problemas.');
+    return;
+  }
+
+  problemasGlobal = problemas;
+
+  mostrarRelatorio(problemas);
+
+  const payload = {
+    nome: nomeGlobal,
+    email: emailGlobal,
+    problemas: problemasGlobal
+  };
+
+  fetch('https://script.google.com/macros/s/AKfycbyoV-7hJPPFQ1zvQ1Ydv6BjJWQ8OLrcxmYq7xKLRTRuNX2hDVWXJVP28zL_2sdv4cu5hg/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  document.getElementById('page2').classList.add('hidden');
+  document.getElementById('page3').classList.remove('hidden');
+}
 
     function mostrarRelatorio(problemas) {
       let html = `
