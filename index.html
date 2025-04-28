@@ -10,7 +10,7 @@
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
   <header class="bg-white shadow p-4 flex items-center justify-center">
-    <img src="logo.png" alt="Logo Aylmer" class="h-16">
+    <img src="logo.PNG" alt="Logo Aylmer" class="h-16">
   </header>
 
   <main class="flex-grow p-4 flex flex-col items-center justify-center">
@@ -120,19 +120,12 @@
       };
 
       fetch('https://script.google.com/macros/s/AKfycbyoV-7hJPPFQ1zvQ1Ydv6BjJWQ8OLrcxmYq7xKLRTRuNX2hDVWXJVP28zL_2sdv4cu5hg/exec', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      })
-      .then(response => response.text())
-      .then(result => console.log('Success:', result))
-      .catch(error => console.error('Error:', error));
-
-      document.getElementById('page2').classList.add('hidden');
-      document.getElementById('page3').classList.remove('hidden');
-    }
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  },
+  body: `data=${encodeURIComponent(JSON.stringify(payload))}`
+});
 
     function mostrarRelatorio(problemas) {
       let html = `
