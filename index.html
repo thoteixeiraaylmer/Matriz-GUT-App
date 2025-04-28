@@ -36,7 +36,7 @@
       <div class="flex justify-center mt-6 gap-4">
         <button onclick="baixarPDF()" class="bg-green-600 text-white p-2 rounded">Baixar Relatório em PDF</button>
       </div>
-      <p class="text-center mt-4 text-blue-700 font-medium">Obrigado por preencher! Um e-mail foi enviado para você.</p>
+      <p class="text-center mt-4 text-blue-700 font-medium">Obrigado por preencher!</p>
     </div>
   </main>
 
@@ -171,9 +171,18 @@
     }
 
     function baixarPDF() {
-      const element = document.getElementById('pdf-content');
-      html2pdf().from(element).save('Relatorio_MatrizGUT.pdf');
-    }
+  const element = document.getElementById('pdf-content');
+
+  const opt = {
+    margin:       10,
+    filename:     'Relatorio_MatrizGUT.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(element).save();
+}
   </script>
 
 </body>
